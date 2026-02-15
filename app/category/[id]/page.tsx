@@ -1,11 +1,9 @@
+'use client'
+
 import { allPosts } from 'contentlayer/generated'
-import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { format, compareDesc } from 'date-fns'
-
-interface CategoryPageProps {
-  params: { id: string }
-}
+import { useParams } from 'next/navigation'
 
 const categoryNames: Record<string, string> = {
   finance: '金融',
@@ -29,15 +27,17 @@ const categoryColors: Record<string, string> = {
   life: 'bg-life/10 text-life border-life/20',
 }
 
-export async function generateStaticParams() {
-  return Object.keys(categoryNames).map((id) => ({ id }))
-}
-
-export default function CategoryPage({ params }: CategoryPageProps) {
-  const category = params.id
+export default function CategoryPage() {
+  const params = useParams()
+  const category = params?.id as string
   
-  if (!categoryNames[category]) {
-    notFound()
+  if (!category || !categoryNames[category]) {
+    return (
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        <Link href="/" className="text-blue-600">← 返回首页</Link>
+        <p className="mt-4">分类不存在</p>
+      </main>
+    )
   }
 
   const posts = allPosts
@@ -71,8 +71,8 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             key={post._id}
             className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
           >
-            <Link href={post.url}>
-              <h3 className="text-xl font-semibold mb-2 hover:text-blue-600">
+            <Link href={`/posts/${post._raw.flattenedPath}`}>
+              <h3 className="text-xl font-semibold mb-2 hover:text-blue-600 cursor-pointer">
                 {post.title}
               </h3>
             </Link>
