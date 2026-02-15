@@ -1,8 +1,11 @@
-import Link from 'next/link'
+'use client'
+
+import { useState } from 'react'
 import { allPosts } from 'contentlayer/generated'
 import { compareDesc, format } from 'date-fns'
 import { 
-  Wallet, Plane, Bot, Briefcase, Brain, BookOpen, Package, Leaf 
+  Wallet, Plane, Bot, Briefcase, Brain, BookOpen, Package, Leaf,
+  ChevronDown, ChevronUp, ExternalLink
 } from 'lucide-react'
 
 const categoryIcons: Record<string, React.ReactNode> = {
@@ -38,6 +41,91 @@ const categoryNames: Record<string, string> = {
   life: '生活',
 }
 
+function PostCard({ post }: { post: any }) {
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <article className="bg-white rounded-xl shadow-sm border overflow-hidden">
+      {/* 标题区 - 始终显示 */}
+      <div 
+        className="p-6 cursor-pointer hover:bg-gray-50 transition-colors"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-3">
+              <span className={`px-2 py-1 rounded text-xs font-medium ${categoryColors[post.category]}`}>
+                {categoryNames[post.category]}
+              </span>
+              <span className="text-gray-400 text-sm">{format(new Date(post.date), 'yyyy-MM-dd')}</span>
+            </div>
+            
+            <h3 className="text-xl font-semibold mb-2 text-gray-900">{post.title}</h3>
+            
+            {post.summary && (
+              <p className="text-gray-600 text-sm line-clamp-2">{post.summary}</p>
+            )}
+            
+            <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+              <span>👤 {post.author}</span>
+              {post.tags?.slice(0, 3).map((tag: string) => (
+                <span key={tag} className="text-xs bg-gray-100 px-2 py-1 rounded">#{tag}</span>
+              ))}
+            </div>
+          </div>
+          
+          <div className="text-gray-400">
+            {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+          </div>
+        </div>
+      </div>
+
+      {/* 展开内容 */}
+      {expanded && (
+        <div className="border-t px-6 py-6 bg-gray-50">
+          {/* 原文链接 */}
+          <div className="mb-6">
+            <a
+              href={post.source}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ExternalLink className="w-4 h-4" />
+              查看原文
+            </a>
+          </div>
+
+          {/* 标签 */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-6">
+              {post.tags.map((tag: string) => (
+                <span
+                  key={tag}
+                  className="px-3 py-1 bg-white text-gray-600 rounded-full text-sm border"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* 全文内容 */}
+          <div
+            className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700"
+            dangerouslySetInnerHTML={{ __html: post.body.html }}
+          />
+
+          <div className="mt-6 pt-4 border-t text-gray-400 text-sm">
+            📌 由墨白整理收录
+          </div>
+        </div>
+      )}
+    </article>
+  )
+}
+
 export default function Home() {
   const posts = allPosts.sort((a, b) => 
     compareDesc(new Date(a.date), new Date(b.date))
@@ -60,62 +148,34 @@ export default function Home() {
         </p>
       </header>
 
+      {/* 分类统计 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
         {Object.entries(categoryNames).map(([key, name]) => (
-          <Link
+          <div
             key={key}
-            href={`/category/${key}`}
-            className={`p-5 rounded-xl border-2 ${categoryColors[key]} hover:shadow-lg transition-all hover:-translate-y-1`}
+            className={`p-5 rounded-xl border-2 ${categoryColors[key]}`}
           >
             <div className="flex items-center gap-3 mb-3">
               {categoryIcons[key]}
               <span className="font-semibold">{name}</span>
             </div>
-            <div className="text-3xl font-bold">
-              {stats.byCategory[key] || 0}
-            </div>
+            <div className="text-3xl font-bold">{stats.byCategory[key] || 0}</div>
             <div className="text-sm opacity-70">篇文章</div>
-          </Link>
+          </div>
         ))}
       </div>
 
+      {/* 文章列表 */}
       <section>
         <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
           <span>最新内容</span>
           <span className="text-sm font-normal text-gray-400">({posts.length} 篇)</span>
         </h2>
+        
         <div className="space-y-4">
-          {posts.map((post) => {
-            // 新链接格式: /posts/category/slug
-            const parts = post._raw.flattenedPath.split('/')
-            const postUrl = `/posts/${parts[0]}/${parts[1]}`
-            return (
-              <article
-                key={post._id}
-                className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border"
-              >
-                <Link href={postUrl} className="block">
-                  <h3 className="text-xl font-semibold mb-3 hover:text-blue-600 transition-colors">
-                    {post.title}
-                  </h3>
-                </Link>
-                
-                {post.summary && (
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                    {post.summary}
-                  </p>
-                )}
-                
-                <div className="flex flex-wrap items-center gap-3 text-sm">
-                  <span className={`px-2 py-1 rounded ${categoryColors[post.category]}`}>
-                    {categoryNames[post.category]}
-                  </span>
-                  <span className="text-gray-400">{format(new Date(post.date), 'yyyy-MM-dd')}</span>
-                  <span className="text-gray-500">{post.author}</span>
-                </div>
-              </article>
-            )
-          })}
+          {posts.map((post) => (
+            <PostCard key={post._id} post={post} />
+          ))}
         </div>
       </section>
     </main>
