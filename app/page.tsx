@@ -46,7 +46,6 @@ function PostCard({ post }: { post: any }) {
 
   return (
     <article className="bg-white rounded-xl shadow-sm border overflow-hidden">
-      {/* 标题区 - 始终显示 */}
       <div 
         className="p-6 cursor-pointer hover:bg-gray-50 transition-colors"
         onClick={() => setExpanded(!expanded)}
@@ -80,10 +79,8 @@ function PostCard({ post }: { post: any }) {
         </div>
       </div>
 
-      {/* 展开内容 */}
       {expanded && (
         <div className="border-t px-6 py-6 bg-gray-50">
-          {/* 原文链接 */}
           <div className="mb-6">
             <a
               href={post.source}
@@ -97,7 +94,6 @@ function PostCard({ post }: { post: any }) {
             </a>
           </div>
 
-          {/* 标签 */}
           {post.tags && post.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-6">
               {post.tags.map((tag: string) => (
@@ -111,7 +107,6 @@ function PostCard({ post }: { post: any }) {
             </div>
           )}
 
-          {/* 全文内容 */}
           <div
             className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700"
             dangerouslySetInnerHTML={{ __html: post.body.html }}
@@ -127,13 +122,20 @@ function PostCard({ post }: { post: any }) {
 }
 
 export default function Home() {
-  const posts = allPosts.sort((a, b) => 
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  
+  const allPostsList = allPosts.sort((a, b) => 
     compareDesc(new Date(a.date), new Date(b.date))
   )
+  
+  // 根据选择的分类筛选文章
+  const filteredPosts = selectedCategory
+    ? allPostsList.filter(post => post.category === selectedCategory)
+    : allPostsList
 
   const stats = {
-    total: posts.length,
-    byCategory: posts.reduce((acc, post) => {
+    total: allPostsList.length,
+    byCategory: allPostsList.reduce((acc, post) => {
       acc[post.category] = (acc[post.category] || 0) + 1
       return acc
     }, {} as Record<string, number>),
@@ -148,35 +150,70 @@ export default function Home() {
         </p>
       </header>
 
-      {/* 分类统计 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-        {Object.entries(categoryNames).map(([key, name]) => (
-          <div
-            key={key}
-            className={`p-5 rounded-xl border-2 ${categoryColors[key]}`}
-          >
-            <div className="flex items-center gap-3 mb-3">
-              {categoryIcons[key]}
-              <span className="font-semibold">{name}</span>
-            </div>
-            <div className="text-3xl font-bold">{stats.byCategory[key] || 0}</div>
-            <div className="text-sm opacity-70">篇文章</div>
-          </div>
-        ))}
+      {/* 分类统计 - 可点击筛选 */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        {Object.entries(categoryNames).map(([key, name]) => {
+          const isSelected = selectedCategory === key
+          const count = stats.byCategory[key] || 0
+          
+          return (
+            <button
+              key={key}
+              onClick={() => setSelectedCategory(isSelected ? null : key)}
+              className={`p-5 rounded-xl border-2 text-left transition-all hover:shadow-lg hover:-translate-y-1 ${
+                isSelected 
+                  ? categoryColors[key] + ' ring-2 ring-offset-2 ring-blue-400' 
+                  : categoryColors[key] + ' opacity-70 hover:opacity-100'
+              }`}
+            >
+              <div className="flex items-center gap-3 mb-3">
+                {categoryIcons[key]}
+                <span className="font-semibold">{name}</span>
+              </div>
+              <div className="text-3xl font-bold">{count}</div>
+              <div className="text-sm opacity-70">篇文章</div>
+            </button>
+          )
+        })}
       </div>
+
+      {/* 筛选状态显示 */}
+      {selectedCategory && (
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-gray-600">当前筛选:</span>
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${categoryColors[selectedCategory]}`}>
+              {categoryNames[selectedCategory]}
+            </span>
+            <span className="text-gray-400">({filteredPosts.length} 篇)</span>
+          </div>
+          <button
+            onClick={() => setSelectedCategory(null)}
+            className="text-blue-600 hover:underline"
+          >
+            显示全部
+          </button>
+        </div>
+      )}
 
       {/* 文章列表 */}
       <section>
         <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-          <span>最新内容</span>
-          <span className="text-sm font-normal text-gray-400">({posts.length} 篇)</span>
+          <span>{selectedCategory ? categoryNames[selectedCategory] : '全部内容'}</span>
+          <span className="text-sm font-normal text-gray-400">({filteredPosts.length} 篇)</span>
         </h2>
         
-        <div className="space-y-4">
-          {posts.map((post) => (
-            <PostCard key={post._id} post={post} />
-          ))}
-        </div>
+        {filteredPosts.length === 0 ? (
+          <div className="text-center py-12 text-gray-400">
+            该分类下暂无文章
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredPosts.map((post) => (
+              <PostCard key={post._id} post={post} />
+            ))}
+          </div>
+        )}
       </section>
     </main>
   )
