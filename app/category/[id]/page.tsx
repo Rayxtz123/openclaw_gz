@@ -29,7 +29,7 @@ const categoryColors: Record<string, string> = {
   life: 'bg-life/10 text-life border-life/20',
 }
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
   return Object.keys(categoryNames).map((id) => ({ id }))
 }
 
@@ -44,28 +44,27 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     .filter((post) => post.category === category)
     .sort((a, b) => compareDesc(new Date(a.date), new Date(b.date)))
 
+  const icon = category === 'finance' ? '💰' :
+    category === 'travel' ? '✈️' :
+    category === 'ai' ? '🤖' :
+    category === 'work' ? '💼' :
+    category === 'thinking' ? '🧠' :
+    category === 'reading' ? '📚' :
+    category === 'resource' ? '📦' : '🌱'
+
   return (
     <main className="max-w-6xl mx-auto px-4 py-8">
-      {/* Header */}
       <header className="mb-8">
         <Link href="/" className="text-gray-500 hover:text-gray-900">
           ← 返回首页
         </Link>
         <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg ${categoryColors[category]} mt-4`}>
-          <span className="text-2xl">{category === 'finance' && '💰' ||
-            category === 'travel' && '✈️' ||
-            category === 'ai' && '🤖' ||
-            category === 'work' && '💼' ||
-            category === 'thinking' && '🧠' ||
-            category === 'reading' && '📚' ||
-            category === 'resource' && '📦' ||
-            '🌱'}</span>
+          <span className="text-2xl">{icon}</span>
           <h1 className="text-2xl font-bold">{categoryNames[category]}</h1>
           <span className="text-sm opacity-70">({posts.length} 篇)</span>
         </div>
       </header>
 
-      {/* Posts */}
       <div className="space-y-4">
         {posts.map((post) => (
           <article
