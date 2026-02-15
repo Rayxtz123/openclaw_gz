@@ -53,13 +53,11 @@ export default function Home() {
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-8">
-      {/* Header */}
       <header className="mb-12">
         <h1 className="text-4xl font-bold mb-2">Rayx 的笔记库</h1>
         <p className="text-gray-600">个人知识管理与内容收藏系统，由 AI 助手「墨白」自动整理</p>
       </header>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
         {Object.entries(categoryNames).map(([key, name]) => (
           <Link
@@ -78,36 +76,39 @@ export default function Home() {
         ))}
       </div>
 
-      {/* Recent Posts */}
       <section>
         <h2 className="text-2xl font-bold mb-6">最新内容</h2>
         <div className="space-y-4">
-          {posts.slice(0, 10).map((post) => (
-            <article
-              key={post._id}
-              className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <Link href={post.url}>
-                    <h3 className="text-xl font-semibold mb-2 hover:text-blue-600">
-                      {post.title}
-                    </h3>
-                  </Link>
-                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                    {post.summary}
-                  </p>
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <span className={`px-2 py-1 rounded ${categoryColors[post.category]}`}>
-                      {categoryNames[post.category]}
-                    </span>
-                    <span>{format(new Date(post.date), 'yyyy-MM-dd')}</span>
-                    <span>{post.author}</span>
+          {posts.map((post) => {
+            // 构建文章链接: /posts/category/slug
+            const postPath = `/posts/${post._raw.flattenedPath}`
+            return (
+              <article
+                key={post._id}
+                className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <Link href={postPath}>
+                      <h3 className="text-xl font-semibold mb-2 hover:text-blue-600 cursor-pointer">
+                        {post.title}
+                      </h3>
+                    </Link>
+                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                      {post.summary}
+                    </p>
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <span className={`px-2 py-1 rounded ${categoryColors[post.category]}`}>
+                        {categoryNames[post.category]}
+                      </span>
+                      <span>{format(new Date(post.date), 'yyyy-MM-dd')}</span>
+                      <span>{post.author}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            )
+          })}
         </div>
       </section>
     </main>
