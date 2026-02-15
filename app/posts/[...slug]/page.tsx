@@ -30,7 +30,7 @@ const categoryColors: Record<string, string> = {
   life: 'bg-life/10 text-life',
 }
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
   return allPosts.map((post) => ({
     slug: post._raw.flattenedPath.split('/'),
   }))
@@ -46,7 +46,6 @@ export default function PostPage({ params }: PostPageProps) {
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-8">
-      {/* Back */}
       <Link
         href="/"
         className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-8"
@@ -55,7 +54,6 @@ export default function PostPage({ params }: PostPageProps) {
         返回首页
       </Link>
 
-      {/* Header */}
       <header className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${categoryColors[post.category]}`}>
@@ -83,7 +81,6 @@ export default function PostPage({ params }: PostPageProps) {
         </div>
       </header>
 
-      {/* Tags */}
       {post.tags && post.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-8">
           {post.tags.map((tag) => (
@@ -97,13 +94,11 @@ export default function PostPage({ params }: PostPageProps) {
         </div>
       )}
 
-      {/* Content */}
       <article
         className="prose prose-lg max-w-none"
         dangerouslySetInnerHTML={{ __html: post.body.html }}
       />
 
-      {/* Footer */}
       <footer className="mt-12 pt-8 border-t text-gray-500 text-sm">
         <p>📌 由墨白整理收录</p>
       </footer>
