@@ -17,14 +17,14 @@ const categoryIcons: Record<string, React.ReactNode> = {
 }
 
 const categoryColors: Record<string, string> = {
-  finance: 'bg-finance/10 text-finance border-finance/20',
-  travel: 'bg-travel/10 text-travel border-travel/20',
-  ai: 'bg-ai/10 text-ai border-ai/20',
-  work: 'bg-work/10 text-work border-work/20',
-  thinking: 'bg-thinking/10 text-thinking border-thinking/20',
-  reading: 'bg-reading/10 text-reading border-reading/20',
-  resource: 'bg-resource/10 text-resource border-resource/20',
-  life: 'bg-life/10 text-life border-life/20',
+  finance: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  travel: 'bg-blue-100 text-blue-700 border-blue-200',
+  ai: 'bg-purple-100 text-purple-700 border-purple-200',
+  work: 'bg-amber-100 text-amber-700 border-amber-200',
+  thinking: 'bg-pink-100 text-pink-700 border-pink-200',
+  reading: 'bg-teal-100 text-teal-700 border-teal-200',
+  resource: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+  life: 'bg-lime-100 text-lime-700 border-lime-200',
 }
 
 const categoryNames: Record<string, string> = {
@@ -53,9 +53,11 @@ export default function Home() {
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-8">
-      <header className="mb-12">
-        <h1 className="text-4xl font-bold mb-2">Rayx 的笔记库</h1>
-        <p className="text-gray-600">个人知识管理与内容收藏系统，由 AI 助手「墨白」自动整理</p>
+      <header className="mb-12 text-center">
+        <h1 className="text-4xl font-bold mb-3">Rayx 的笔记库</h1>
+        <p className="text-gray-600 max-w-2xl mx-auto">
+          个人知识管理与内容收藏系统，由 AI 助手「墨白」自动整理
+        </p>
       </header>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
@@ -63,48 +65,51 @@ export default function Home() {
           <Link
             key={key}
             href={`/category/${key}`}
-            className={`p-4 rounded-lg border ${categoryColors[key]} hover:shadow-md transition-shadow`}
+            className={`p-5 rounded-xl border-2 ${categoryColors[key]} hover:shadow-lg transition-all hover:-translate-y-1`}
           >
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-3 mb-3">
               {categoryIcons[key]}
-              <span className="font-medium">{name}</span>
+              <span className="font-semibold">{name}</span>
             </div>
-            <div className="text-2xl font-bold">
+            <div className="text-3xl font-bold">
               {stats.byCategory[key] || 0}
             </div>
+            <div className="text-sm opacity-70">篇文章</div>
           </Link>
         ))}
       </div>
 
       <section>
-        <h2 className="text-2xl font-bold mb-6">最新内容</h2>
+        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+          <span>最新内容</span>
+          <span className="text-sm font-normal text-gray-400">({posts.length} 篇)</span>
+        </h2>
         <div className="space-y-4">
           {posts.map((post) => {
-            // 构建文章链接: /posts/category/slug
-            const postPath = `/posts/${post._raw.flattenedPath}`
+            const postUrl = `/posts/${post._raw.flattenedPath}`
             return (
               <article
                 key={post._id}
-                className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
+                className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <Link href={postPath}>
-                      <h3 className="text-xl font-semibold mb-2 hover:text-blue-600 cursor-pointer">
-                        {post.title}
-                      </h3>
-                    </Link>
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                      {post.summary}
-                    </p>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span className={`px-2 py-1 rounded ${categoryColors[post.category]}`}>
-                        {categoryNames[post.category]}
-                      </span>
-                      <span>{format(new Date(post.date), 'yyyy-MM-dd')}</span>
-                      <span>{post.author}</span>
-                    </div>
-                  </div>
+                <Link href={postUrl} className="block">
+                  <h3 className="text-xl font-semibold mb-3 hover:text-blue-600 transition-colors">
+                    {post.title}
+                  </h3>
+                </Link>
+                
+                {post.summary && (
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                    {post.summary}
+                  </p>
+                )}
+                
+                <div className="flex flex-wrap items-center gap-3 text-sm">
+                  <span className={`px-2 py-1 rounded ${categoryColors[post.category]}`}>
+                    {categoryNames[post.category]}
+                  </span>
+                  <span className="text-gray-400">{format(new Date(post.date), 'yyyy-MM-dd')}</span>
+                  <span className="text-gray-500">{post.author}</span>
                 </div>
               </article>
             )
