@@ -1,12 +1,10 @@
+'use client'
+
 import { allPosts } from 'contentlayer/generated'
-import { notFound } from 'next/navigation'
 import { format } from 'date-fns'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
-
-interface PostPageProps {
-  params: { slug: string[] }
-}
 
 const categoryNames: Record<string, string> = {
   finance: '金融',
@@ -30,18 +28,20 @@ const categoryColors: Record<string, string> = {
   life: 'bg-life/10 text-life',
 }
 
-export async function generateStaticParams() {
-  return allPosts.map((post) => ({
-    slug: post._raw.flattenedPath.split('/'),
-  }))
-}
-
-export default function PostPage({ params }: PostPageProps) {
-  const slug = params.slug.join('/')
+export default function PostPage() {
+  const params = useParams()
+  const slugParts = params?.slug as string[] || []
+  const slug = slugParts.join('/')
+  
   const post = allPosts.find((p) => p._raw.flattenedPath === slug)
 
   if (!post) {
-    notFound()
+    return (
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        <Link href="/" className="text-blue-600">← 返回首页</Link>
+        <p className="mt-4">文章未找到</p>
+      </main>
+    )
   }
 
   return (
@@ -56,8 +56,8 @@ export default function PostPage({ params }: PostPageProps) {
 
       <header className="mb-8">
         <div className="flex items-center gap-3 mb-4">
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${categoryColors[post.category]}`}>
-            {categoryNames[post.category]}
+          <span className={`px-3 py-1 rounded-full text-sm font-medium ${categoryColors[post.category] || 'bg-gray-100'}`}>
+            {categoryNames[post.category] || post.category}
           </span>
           {post.subcategory && (
             <span className="text-gray-400">/ {post.subcategory}</span>
@@ -96,7 +96,7 @@ export default function PostPage({ params }: PostPageProps) {
 
       <article
         className="prose prose-lg max-w-none"
-        dangerouslySetInnerHTML={{ __html: post.body.html }}
+        dangerouslySetInnerHTML={{ __html: post.body.html || '' }}
       />
 
       <footer className="mt-12 pt-8 border-t text-gray-500 text-sm">
