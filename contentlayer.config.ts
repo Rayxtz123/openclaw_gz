@@ -2,7 +2,8 @@ import { defineDocumentType, makeSource } from 'contentlayer/source-files'
 
 export const Post = defineDocumentType(() => ({
   name: 'Post',
-  filePathPattern: `**/*.md`,
+  // 只匹配子目录下的 .md 文件，排除根目录的 README.md
+  filePathPattern: `*/**/*.md`,
   fields: {
     title: { type: 'string', required: true },
     date: { type: 'date', required: true },
@@ -30,4 +31,6 @@ export const Post = defineDocumentType(() => ({
 export default makeSource({
   contentDirPath: 'content',
   documentTypes: [Post],
+  // 禁用导入别名警告
+  disableImportAliasWarning: true,
 })
