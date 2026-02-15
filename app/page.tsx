@@ -86,7 +86,9 @@ export default function Home() {
         </h2>
         <div className="space-y-4">
           {posts.map((post) => {
-            const postUrl = `/posts/${post._raw.flattenedPath}`
+            // 新链接格式: /posts/category/slug
+            const parts = post._raw.flattenedPath.split('/')
+            const postUrl = `/posts/${parts[0]}/${parts[1]}`
             return (
               <article
                 key={post._id}
