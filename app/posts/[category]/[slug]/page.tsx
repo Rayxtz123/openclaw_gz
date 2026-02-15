@@ -1,15 +1,10 @@
+'use client'
+
 import { allPosts } from 'contentlayer/generated'
-import { notFound } from 'next/navigation'
 import { format } from 'date-fns'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
-
-interface PostPageProps {
-  params: {
-    category: string
-    slug: string
-  }
-}
 
 const categoryNames: Record<string, string> = {
   finance: '金融',
@@ -33,32 +28,27 @@ const categoryColors: Record<string, string> = {
   life: 'bg-lime-100 text-lime-700',
 }
 
-export function generateStaticParams() {
-  const params: Array<{ category: string; slug: string }> = []
+export default function PostPage() {
+  const params = useParams()
+  const category = params?.category as string
+  const slug = params?.slug as string
   
-  for (const post of allPosts) {
-    const parts = post._raw.flattenedPath.split('/')
-    if (parts.length >= 2) {
-      params.push({
-        category: parts[0],
-        slug: parts[1],
-      })
-    }
-  }
-  
-  console.log('Generating static params for posts:', params.length)
-  return params
-}
-
-export default function PostPage({ params }: PostPageProps) {
-  const { category, slug } = params
-  const fullPath = `${category}/${slug}`
+  // 解码 URL 中的中文
+  const decodedSlug = decodeURIComponent(slug || '')
+  const fullPath = `${category}/${decodedSlug}`
   
   const post = allPosts.find((p) => p._raw.flattenedPath === fullPath)
 
   if (!post) {
-    console.log('Post not found:', fullPath)
-    notFound()
+    return (
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        <Link href="/" className="text-blue-600">← 返回首页</Link>
+        <div className="mt-8 p-4 bg-red-50 rounded">
+          <p>文章未找到</p>
+          <p className="text-sm text-gray-500 mt-2">路径: {fullPath}</p>
+        </div>
+      </main>
+    )
   }
 
   return (
