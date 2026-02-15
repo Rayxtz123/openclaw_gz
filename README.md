@@ -1,6 +1,6 @@
-# OpenClaw 内容库
+# Rayx 的笔记库
 
-个人内容管理系统，由 AI 助手「墨白」自动整理。
+个人知识管理与内容收藏系统，由 AI 助手「墨白」自动整理。
 
 ## 分类
 
@@ -15,7 +15,7 @@
 
 ## 技术栈
 
-- Next.js 14
+- Next.js 13
 - ContentLayer
 - Tailwind CSS
 - TypeScript
