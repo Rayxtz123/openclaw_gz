@@ -55,8 +55,8 @@ export default function Home() {
     <main className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
       <header className="mb-12">
-        <h1 className="text-4xl font-bold mb-2">OpenClaw 内容库</h1>
-        <p className="text-gray-600">由 AI 助手「墨白」自动整理</p>
+        <h1 className="text-4xl font-bold mb-2">Rayx 的笔记库</h1>
+        <p className="text-gray-600">个人知识管理与内容收藏系统，由 AI 助手「墨白」自动整理</p>
       </header>
 
       {/* Stats */}
